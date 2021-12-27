@@ -1,0 +1,99 @@
+# Connected Application
+connectedApplication:
+  clientId: ClientID
+  clientSecret: ClientSecret
+  grantType: client_credentials
+  
+# Organization
+organization:
+  bussinesGroupID: OrganizationID
+  environmentID: EnvironmentID
+  environmentClientID: ClientID
+  environmentClientSecret: ClientSecret
+  environmentName: dev
+
+# API Instance setting.
+apiInstance:
+  apiName: AccountAPP
+  assetId: account
+  apiInstanceLabel: Development
+
+# SLA tier setting.
+tiers:
+  - tier:
+    name: DevOps SLA Tier
+    description: DevOps登録
+    autoApprove: true
+    maximumRequests: 5
+    timePeriodInMilliseconds: 1
+
+# Policy setting.
+policies:
+ # JWT検証ポリシー
+ jwt-validation:
+   jwtKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiHeueaNGgYV6vyU/gHxFjcJ0aoLa3amxvPPdr5vd35qiKvpsBMV1oVyW5IwfDiBeF6kw5i9ZgbMshakmmVJdbgH4AE+cg2bWfAjTOIMN+1HdBlcbnBIZbn91nvmXAp/UYx+1EtRfur5Ykh481olKziuEyFuWgjB14WGyGz/uuPn8X2PlkNKrB983YrlXGwrkEtQpovDoj2L+ukKgKnVeIIrg3nQ6YHPTAC2ZOgYkVGY/gzUxba7Gj6BjV3m00FZArv2EnMfV0j/+VCC8CcknBIjLz9EgN/Z91L6zmEJT6D9ZVH78lDhpuX5miN1aIc4v/se2xZwGKHQCTxwwEZifqwIDAQAB
+   clientIDExpression: "#[if(vars.claimSet.sub?) read(vars.claimSet.sub,'application/json').\"client_id\" else {}]"
+   audienceClaimValues: api.sample.co.jp
+ # SLAベースレイトリミット制限
+ rate-limiting-sla-based:
+   clientIDExpression: "#[if(authentication.properties.claims.sub?) read(authentication.properties.claims.sub,'application/json').\"client_id\" else {}]"
+ # ヘッダー挿入
+ header-injection:
+   inboundItem: x-user-info
+   inboundValue: "#[if(read(authentication.properties.claims.sub,'application/json').user_info?)read(authentication.properties.claims.sub,'application/json').user_info else {}]"
+ # ヘッダー削除
+ header-removal:
+ # メッセージロギング
+ message-logging:
+
+# アラート
+# - jwt-validation
+# - rate-limiting-sla-based
+# - api-response-time
+# - api-response-code-500
+# - api-response-code-400
+# - api-request-count
+alerts:
+ - jwt-validation
+ - rate-limiting-sla-based
+ - api-response-time
+ - api-response-code-500
+ - api-response-code-400
+ - api-request-count
+
+# アラート受信者
+# APIアラートとランタイムアラート両方の受信者を設定する。
+alertRecipients:
+ - dev29_masakikawaguchi
+
+# ランタイム
+runtime:
+  domain: smpl-%s-account-v1
+  filename: account-v1.jar
+  runtimeVersion: 4.4.0
+  worker:
+    # type: <Micro|Small|Medium|Large|xLarge|xxLarge|4xLarge>
+    type: Micro
+    workers: 1
+    region: us-east-1
+  properties:
+    anypoint.platform.analytics_base_uri: https://analytics-ingest.anypoint.mulesoft.com/
+  automaticallyRestart: true
+  persistentQueues: false
+  enableMonitoring: true
+
+# ランタイムアラート
+# - cpu
+# - deployment-failed
+# - memory
+# - worker-unresponsive
+# - application-notification
+# - event-threshold-exceeded
+runtimeAlerts:
+ - cpu
+ - deployment-failed
+ - memory
+ - worker-unresponsive
+ - application-notification
+ - event-threshold-exceeded
+    
