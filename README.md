@@ -1,0 +1,2 @@
+# AnypointManagerApp
+AnypointPlatformの環境構築ツール
